@@ -1,1 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score and Fouls</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #202024;
+            --primary: #00b37e;
+            --danger: #f75a68;
+            --accent: #e1b12c;
+            --text: #e1e1e6;
+            --text-muted: #8d8d99;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Central Timer & Period Style */
+        .match-control-center {
+            background-color: var(--card-bg);
+            border: 1px solid #29292e;
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .timer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .period-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            border-top: 1px solid #29292e;
+            padding-top: 15px;
+        }
+
+        .period-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .period-select {
+            background-color: #29292e;
+            color: var(--text);
+            border: 1px solid #323238;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .scoreboard {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+            flex-wrap: wrap;
+        }
+
+        .team-card {
+            flex: 1;
+            min-width: 280px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid #29292e;
+        }
+
+        .team-name {
+            font-size: 1.8rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text);
+            text-align: center;
+            width: 100%;
+            font-weight: bold;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+
+        .team-name:focus {
+            outline: none;
+            border-bottom-color: var(--primary);
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .counter-group {
+            margin-bottom: 20px;
+        }
+
+        .counter-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .display {
+            font-size: 4rem;
+            font-weight: bold;
+            font-family: monospace;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .display.score {
+            color: var(--primary);
+        }
+
+        .display.fouls {
+            color: var(--danger);
+            font-size: 3rem;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-control {
+            width: 45px;
+            height: 45px;
+            border-radius: 50px;
+            font-size: 1.4rem;
+            background-color: #29292e;
+            color: var(--text);
+        }
+
+        .btn-control:hover {
+            background-color: #323238;
+        }
+
+        .btn-action {
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: white;
+        }
+
+        .btn-start { background-color: var(--primary); }
+        .btn-start:hover { background-color: #00875f; }
+        .btn-pause { background-color: #4e4e54; }
+        .btn-pause:hover { background-color: #616168; }
+        .btn-timer-reset { background-color: #323238; color: var(--text); }
+        .btn-timer-reset:hover { background-color: #4e4e54; }
+
+        .controls-global {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-reset {
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background-color: #29292e;
+            color: var(--text);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-reset:hover {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        @media (max-width: 600px) {
+            .scoreboard {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Score & Fouls</h1>
+    </header>
+
+    <!-- CRONÔMETRO E PERÍODO -->
+    <section class="match-control-center">
+        <div class="timer-display" id="timer">00:00</div>
+        <div class="timer-buttons">
+            <button class="btn-action btn-start" onclick="startTimer()">Iniciar</button>
+            <button class="btn-action btn-pause" onclick="pauseTimer()">Pausar</button>
+            <button class="btn-action btn-timer-reset" onclick="resetTimer()">Zerar Tempo</button>
+        </div>
+        
+        <div class="period-container">
+            <span class="period-label">Período:</span>
+            <select class="period-select" id="period">
+                <option value="1">1º Tempo</option>
+                <option value="2">2º Tempo</option>
+                <option value="3">3º Tempo</option>
+                <option value="4">4º Tempo</option>
+                <option value="Prorrogação">Prorrogação</option>
+                <option value="Pênaltis">Pênaltis</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- PLACAR DE TIMES -->
+    <main class="scoreboard">
+        <!-- TIME A -->
+        <div class="team-card">
+            <input type="text" class="team-name" value="TIME HOME" aria-label="Nome do Time Casa">
+            
+            <div class="counter-group">
+                <div class="section-title">Pontos / Gols</div>
+                <div class="display score" id="score-a">0</div>
+                <div class="btn-container">
+                    <button class="btn-control" onclick="changeValue('score-a', -1)">-</button>
+                    <button class="btn-control" onclick="changeValue('score-a', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="counter-group">
+                <div class="section-title">Faltas</div>
+                <div class="display fouls" id="fouls-a">0</div>
+                <div class="btn-container">
+                    <button class="btn-control" onclick="changeValue('fouls-a', -1)">-</button>
+                    <button class="btn-control" onclick="changeValue('fouls-a', 1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIME B -->
+        <div class="team-card">
+            <input type="text" class="team-name" value="TIME AWAY" aria-label="Nome do Time Visitante">
+            
+            <div class="counter-group">
+                <div class="section-title">Pontos / Gols</div>
+                <div class="display score" id="score-b">0</div>
+                <div class="btn-container">
+                    <button class="btn-control" onclick="changeValue('score-b', -1)">-</button>
+                    <button class="btn-control" onclick="changeValue('score-b', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="counter-group">
+                <div class="section-title">Faltas</div>
+                <div class="display fouls" id="fouls-b">0</div>
+                <div class="btn-container">
+                    <button class="btn-control" onclick="changeValue('fouls-b', -1)">-</button>
+                    <button class="btn-control" onclick="changeValue('fouls-b', 1)">+</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ZERAR TUDO -->
+    <div class="controls-global">
+        <button class="btn-reset" onclick="resetAll()">Zerar Partida Completa</button>
+    </div>
+
+    <script>
+        // Logica dos Placar e Faltas
+        function changeValue(id, amount) {
 
